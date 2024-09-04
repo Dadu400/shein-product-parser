@@ -1,49 +1,77 @@
 const getProductDetails = require('./ProductDetailsFetcher');
-const XLSX = require('xlsx');
+const ExcelJS = require('exceljs');
 
 const getProductData = (worksheet) => {
-    const rows = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
 
     const productData = [];
-    for (let i = 1; i < rows.length; i++) {
+    worksheet.eachRow((row, rowNumber) => {
+        if (rowNumber === 1 || row.cellCount < 3) {
+            return;
+        }
+
+        const code = row.getCell(1).text;
+        const variant = row.getCell(2).text;
+        const url = row.getCell(3).text;
+
         productData.push({
-            'code': rows[i][0],
-            'variant': rows[i][1],
-            'url': rows[i][2]
+            'rowIndex': rowNumber,
+            'code': code,
+            'variant': variant,
+            'url': url,
         });
-    }
+    })
 
     return productData;
 }
 
 const main = async () => {
-    const workbook = XLSX.readFile('./Test.xlsx');
+    const workbook = new ExcelJS.Workbook();
+    await workbook.xlsx.readFile('./Test.xlsx');
 
-    const sheetNames = workbook.SheetNames;
-    for (let i = 0; i < sheetNames.length; i++) {
-        const currentSheetName = sheetNames[i];
-        const currentSheet = workbook.Sheets[currentSheetName];
+    for (let i = 0; i < workbook.worksheets.length; i++) {
+        const currentSheet = workbook.worksheets[i];
 
-        console.log(`Processing sheet: ${currentSheetName}`);
+        console.log(`Processing sheet: ${currentSheet.name}`);
         
         const productsData = getProductData(currentSheet);
-        for (let i = 0; i < productsData.length; i++) {
-            const singleProduct = productsData[i];
+        for (product of productsData) {
             try {
-                const productDetails = await getProductDetails(singleProduct.url);
+                const productDetails = await getProductDetails(product.url);
                 
                 const isProductInStock = productDetails.some(sku => sku.stock > 0);
                 if (!isProductInStock) {
-                    console.log(`Product with code: ${singleProduct.code} is out of stock`);
+                    console.log(`Product with code: ${product.code} is out of stock`);
+                    currentSheet.getCell(`A${product.rowIndex}`).style = {
+                        ...currentSheet.getCell(`A${product.rowIndex}`).style,
+                        fill: {
+                            type: 'pattern',
+                            pattern: 'solid',
+                            fgColor: { argb: 'e06666' }
+                        }
+                    };
                 } else {
-                    const excelRow = i + 2;
-                    console.log(`Product with code: ${singleProduct.code} is in stock. Row: ${excelRow}`);
+                    const cellValue = productDetails.map(sku => `${sku.size}[${sku.stock}]`).join(', ');
+                    currentSheet.getCell(`D${product.rowIndex}`).value = cellValue;
+
+                    currentSheet.getCell(`A${product.rowIndex}`).style = {
+                        ...currentSheet.getCell(`A${product.rowIndex}`).style,
+                        fill: {
+                            type: 'pattern',
+                            pattern: 'solid',
+                            fgColor: { argb: 'FFFFFF' }
+                        }
+                    };
                 }
             } catch (error) {
-                console.log("Could not fetch the details for product with code: " + singleProduct.code);
+                console.log(error);
+                console.log("Could not fetch the details for product with code: " + product.code + " " + product.url);
             }
         }
+
+        console.log(`Finished processing sheet: ${currentSheet.name}`);
     }
+
+    await workbook.xlsx.writeFile('./Test.xlsx');
 }
 
 main();
