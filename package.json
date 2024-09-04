@@ -1,0 +1,8 @@
+{
+  "dependencies": {
+    "@ulixee/hero-playground": "^2.0.0-alpha.29",
+    "puppeteer": "^23.2.1",
+    "puppeteer-extra": "^3.3.6",
+    "puppeteer-extra-plugin-stealth": "^2.11.2"
+  }
+}
