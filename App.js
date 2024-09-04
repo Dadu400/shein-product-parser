@@ -1,35 +1,42 @@
 const getProductDetails = require('./ProductDetailsFetcher');
+const XLSX = require('xlsx');
 
-const productLinks = [
-    { code: 'MN0083', url: 'https://eur.shein.com/Appliques-Trumpet-Sleeve-Belted-Mesh-Sleep-Robe-Without-Lingerie-Set-p-10500060-cat-2211.html?mallCode=1' },
-    { code: 'MN0084', url: 'https://eur.shein.com/Layered-Sleeve-Drop-Shoulder-Belted-Satin-Sleep-Robe-p-10995825-cat-2211.html?mallCode=1' },
-    { code: 'MN0085', url: 'https://eur.shein.com/Ruffle-Trim-Flounce-Sleeve-Belted-Mesh-Robe-Without-Lingerie-p-11203160-cat-2211.html?mallCode=1' },
-    { code: 'MN0086', url: 'https://eur.shein.com/Floral-Jacquard-Flounce-Sleeve-Ruffle-Hem-Belted-Sleep-Robe-Without-Lingerie-Set-p-16228928-cat-2211.html?mallCode=1&imgRatio=3-4' },
-    { code: 'MN0087', url: 'https://eur.shein.com/Fuzzy-Trim-Belted-Mesh-Sleep-Robe-Without-Lingerie-p-3374411-cat-2211.html?mallCode=1' },
-    { code: 'MN0088', url: 'https://eur.shein.com/Flounce-Sleeve-Ruffle-Hem-Belted-Satin-Robe-p-12162873-cat-2211.html?mallCode=1' },
-    { code: 'MN0089', url: 'https://us.shein.com/Flounce-Sleeve-Ruffle-Hem-Belted-Satin-Robe-p-12162873-cat-2202.html' },
-    { code: 'MN0090', url: 'https://eur.shein.com/Flounce-Sleeve-Belted-Satin-Robe-p-14190459-cat-2211.html?lang=enpt-pt&ref=www&rep=dir&ret=eur' },
-    { code: 'MN0091', url: 'https://eur.shein.com/Contrast-Lace-Trumpet-Sleeve-Belted-Satin-Robe-p-18275675-cat-2211.html?mallCode=1' },
-    { code: 'MN0092', url: 'https://eur.shein.com/Floral-Lace-Satin-Belted-Robe-p-809852-cat-2211.html?mallCode=1' },
-    { code: 'MN0093', url: 'https://eur.shein.com/Contrast-Mesh-Satin-Robe-Cami-Dress-PJ-Set-p-17823779-cat-1880.html?mallCode=1' },
-    { code: 'MN0094', url: 'https://eur.shein.com/Fuzzy-Trim-Belted-Robe-p-13979380-cat-2211.html?mallCode=1' },
-    { code: 'MN0095', url: 'https://eur.shein.com/Fuzzy-Cuff-Belted-Satin-Sleep-Robe-p-14322357-cat-2209.html?mallCode=1' }
-];
+const getProductData = () => {
+    const productData = [];
+
+    const workbook = XLSX.readFile('./Test.xlsx');
+    const sheetName = workbook.SheetNames[0];
+    const worksheet = workbook.Sheets[sheetName];
+    const rows = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
+
+    for (let i = 1; i < rows.length; i++) {
+        productData.push({
+            'code': rows[i][0],
+            'variant': rows[i][1],
+            'url': rows[i][2]
+        });
+    }
+
+    return productData;
+}
 
 const main = async () => {
-    for (const productLink of productLinks) {
+    const productsData = getProductData();
+
+    for (let i = 0; i < productsData.length; i++) {
+        const singleProduct = productsData[i];
         try {
-            const productDetails = await getProductDetails(productLink.url);
+            const productDetails = await getProductDetails(singleProduct.url);
             
             const isProductInStock = productDetails.some(sku => sku.stock > 0);
             if (!isProductInStock) {
-                console.log(`Product with code: ${productLink.code} is out of stock`);
+                console.log(`Product with code: ${singleProduct.code} is out of stock`, productDetails);
             } else {
-                console.log(`Product with code: ${productLink.code} is in stock:`);
-                console.log(productDetails);
+                const excelRow = i + 1;
+                console.log(`Product with code: ${singleProduct.code} is in stock. Row: ${excelRow}`, productDetails);
             }
         } catch (error) {
-            console.log("Could not fetch the details for product with code: " + productLink.code);
+            console.log("Could not fetch the details for product with code: " + singleProduct.code);
         }
     }
 }
