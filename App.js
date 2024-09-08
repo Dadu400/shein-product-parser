@@ -1,5 +1,6 @@
-const getProductDetails = require('./ProductDetailsFetcher');
+const getProductDetails = require('./utils/ProductDetailsFetcher');
 const ExcelJS = require('exceljs');
+const chokidar = require('chokidar');
 
 const getProductData = (worksheet) => {
 
@@ -24,16 +25,19 @@ const getProductData = (worksheet) => {
     return productData;
 }
 
-const main = async () => {
+const processDocument = async (filePath) => {
     const workbook = new ExcelJS.Workbook();
-    await workbook.xlsx.readFile('./Test.xlsx');
+    await workbook.xlsx.readFile(filePath);
 
     for (let i = 0; i < workbook.worksheets.length; i++) {
         const currentSheet = workbook.worksheets[i];
 
+        console.log('\n------------------------------------------');
         console.log(`Processing sheet: ${currentSheet.name}`);
         
         const productsData = getProductData(currentSheet);
+        console.log('Total products to process: ' + productsData.length);
+        console.log('------------------------------------------');
         for (product of productsData) {
             try {
                 const productDetails = await getProductDetails(product.url);
@@ -50,6 +54,7 @@ const main = async () => {
                         }
                     };
                 } else {
+                    console.log(`Product with code: ${product.code} is in stock`);
                     const cellValue = productDetails.map(sku => `${sku.size}[${sku.stock}]`).join(', ');
                     currentSheet.getCell(`D${product.rowIndex}`).value = cellValue;
 
@@ -69,9 +74,20 @@ const main = async () => {
         }
 
         console.log(`Finished processing sheet: ${currentSheet.name}`);
+        console.log('------------------------------------------');
     }
 
-    await workbook.xlsx.writeFile('./Test.xlsx');
+    const resultFilePath = filePath.replace('monitoring', 'result');
+    await workbook.xlsx.writeFile(resultFilePath);
 }
 
-main();
+const watchFolder = './monitoring';
+
+console.log(`Started listening to monitoring folder, please add files to start the Shein data fetching`);
+chokidar.watch(watchFolder).on('add', async (filePath) => {
+    console.log(`------------------------------------------`);
+    console.log('Processing file: ' + filePath);
+    await processDocument(filePath);
+    console.log('Finished processing file');
+    console.log(`------------------------------------------`);
+});
