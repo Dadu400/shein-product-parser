@@ -31,7 +31,6 @@ const getProductDetails = async (link) => {
       })
     .then(response => response.json())
     .then(data => data['info']['sale_attr_list'][productId]['sku_list'])
-    .then(skus => skus.filter(sku => sku['stock'] !== 0))
     .then(filteredSkus => filteredSkus.map(sku => {
         return {
             stock: sku['stock'],
