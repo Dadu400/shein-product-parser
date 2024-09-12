@@ -42,8 +42,22 @@ const processDocument = async (filePath) => {
             try {
                 const productDetails = await getProductDetails(product.url);
                 
-                const isProductInStock = productDetails.some(sku => sku.stock > 0);
-                if (!isProductInStock) {
+                const inStockCellValue = productDetails.filter(sku => sku.stock > 10 && sku.stock != 0)
+                    .map(sku => `${sku.size}[${sku.stock}]`)
+                    .join(', ');
+                const inLowStockCellValue = productDetails.filter(sku => sku.stock <= 10 && sku.stock != 0)
+                    .map(sku => `${sku.size}[${sku.stock}]`)
+                    .join(', ');
+                const soldOutCellValue = productDetails.filter(sku => sku.stock === 0)
+                    .map(sku => `${sku.size}[${sku.stock}]`)
+                    .join(', ');
+
+                currentSheet.getCell(`D${product.rowIndex}`).value = inStockCellValue;
+                currentSheet.getCell(`E${product.rowIndex}`).value = soldOutCellValue;
+                currentSheet.getCell(`F${product.rowIndex}`).value = inLowStockCellValue;
+
+                const isAllSoldOut = productDetails.every(sku => sku.stock === 0);
+                if (isAllSoldOut) {
                     console.log(`Product with code: ${product.code} is out of stock`);
                     currentSheet.getCell(`A${product.rowIndex}`).style = {
                         ...currentSheet.getCell(`A${product.rowIndex}`).style,
@@ -55,9 +69,6 @@ const processDocument = async (filePath) => {
                     };
                 } else {
                     console.log(`Product with code: ${product.code} is in stock`);
-                    const cellValue = productDetails.map(sku => `${sku.size}[${sku.stock}]`).join(', ');
-                    currentSheet.getCell(`D${product.rowIndex}`).value = cellValue;
-
                     currentSheet.getCell(`A${product.rowIndex}`).style = {
                         ...currentSheet.getCell(`A${product.rowIndex}`).style,
                         fill: {
