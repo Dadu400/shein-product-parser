@@ -1,6 +1,7 @@
 {
   "dependencies": {
     "chokidar": "^3.6.0",
-    "exceljs": "^4.4.0"
+    "exceljs": "^4.4.0",
+    "puppeteer": "^23.3.0"
   }
 }

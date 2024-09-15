@@ -1,0 +1,66 @@
+[
+    {
+        "name": "cookieId",
+        "value": "A9C82A38_ABB9_3024_8A45_3D38B1E00CED",
+        "domain": "eur.shein.com",
+        "path": "/",
+        "httpOnly": false,
+        "secure": false
+    },
+    {
+        "name": "armorUuid",
+        "value": "2024090116154126e6c98084ec379699d97d2cd7aece9400d0206f2562901700",
+        "domain": ".shein.com",
+        "path": "/",
+        "httpOnly": false,
+        "secure": false
+    },
+    {
+        "name": "smidV2",
+        "value": "20240901161541ab18cb637bf4fae7a9485123e93db1bd00b588c0e106ed330",
+        "domain": ".shein.com",
+        "path": "/",
+        "httpOnly": false,
+        "secure": false
+    },
+    {
+        "name": "RESOURCE_ADAPT_WEBP",
+        "value": "1",
+        "domain": "eur.shein.com",
+        "path": "/",
+        "httpOnly": false,
+        "secure": false
+    },
+    {
+        "name": "_f_c_llbs_",
+        "value": "K1903_1726425095_iPzRnhbrCzp5nmWJ7dbwnAPYJ-Qryt95cE907xIPCobNFfykLpdYTLvdfrxyv05TPai2M33wT2OVmcXNzguw003nQKhQyJ3hNgUAaEXJLXAohAfzlwhzpwS39bNcpwkLHaOikIZXqHCPE_D9sdKXHPYu4pVCgdgyrIkA6fDHz5lunZ3P_HexQdRTbwiExA3knT6fkco5bXq1AIQ6z_NElk22lwD_it4ZKKcqdtX0l-S6oGv3WwVCMhmwaEQAjnkxuEphJlslXa3zxC9iv0JujEYR24CUAUzw15Eu7Ec8PAT7tIPNbMlH8iH8FAA1a--Jnbmk1x--6w_v_e8FG_Tq-w",
+        "domain": "eur.shein.com",
+        "path": "/",
+        "httpOnly": false,
+        "secure": false
+    },
+    {
+        "name": "_aimtellSubscriberID",
+        "value": "1c33954e-4b12-6f5c-9cdf-89074809ee77",
+        "domain": "eur.shein.com",
+        "path": "/",
+        "httpOnly": false,
+        "secure": true
+    },
+    {
+        "name": "OptanonConsent",
+        "value": "isGpcEnabled",
+        "domain": ".shein.com",
+        "path": "/",
+        "httpOnly": false,
+        "secure": false
+    },
+    {
+        "name": "forterToken",
+        "value": "8e29b3fbffcf4bb8b81738a8abb6e6ee_1726425310934__UDF43-m4_17ck_",
+        "domain": ".shein.com",
+        "path": "/",
+        "httpOnly": false,
+        "secure": false
+    }
+]

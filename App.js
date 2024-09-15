@@ -39,6 +39,7 @@ const processDocument = async (filePath) => {
         console.log('Total products to process: ' + productsData.length);
         console.log('------------------------------------------');
         for (product of productsData) {
+            await new Promise(resolve => setTimeout(resolve, 2000));
             try {
                 const productDetails = await getProductDetails(product.url);
                 
