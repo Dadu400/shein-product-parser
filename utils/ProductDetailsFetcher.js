@@ -10,8 +10,7 @@ const getProductIdFromLink = (link) => {
     return null;
 }
 
-const getProductDetails = async (link) => {
-    const browser = await puppeteer.launch({ headless: false });
+const getProductDetails = async (browser, link) => {
     const page = await browser.newPage();
 
     // Workaround for not being detected as a bot
@@ -37,7 +36,7 @@ const getProductDetails = async (link) => {
     // Set Cookies and go to page
     await page.setCookie(...cookies);
     await page.goto(link, { waitUntil: 'networkidle2' })
-    await browser.close();
+    await page.close();
 
     // Parse data
     const productId = getProductIdFromLink(link);

@@ -1,6 +1,7 @@
 const getProductDetails = require('./utils/ProductDetailsFetcher');
 const ExcelJS = require('exceljs');
 const chokidar = require('chokidar');
+const puppeteer = require('puppeteer');
 
 const getProductData = (worksheet) => {
 
@@ -25,7 +26,7 @@ const getProductData = (worksheet) => {
     return productData;
 }
 
-const processDocument = async (filePath) => {
+const processDocument = async (browser, filePath) => {
     const workbook = new ExcelJS.Workbook();
     await workbook.xlsx.readFile(filePath);
 
@@ -41,7 +42,7 @@ const processDocument = async (filePath) => {
         for (product of productsData) {
             await new Promise(resolve => setTimeout(resolve, 2000));
             try {
-                const productDetails = await getProductDetails(product.url);
+                const productDetails = await getProductDetails(browser, product.url);
                 
                 const inStockCellValue = productDetails.filter(sku => sku.stock > 10 && sku.stock != 0)
                     .map(sku => `${sku.size}[${sku.stock}]`)
@@ -99,7 +100,9 @@ console.log(`Started listening to monitoring folder, please add files to start t
 chokidar.watch(watchFolder).on('add', async (filePath) => {
     console.log(`------------------------------------------`);
     console.log('Processing file: ' + filePath);
-    await processDocument(filePath);
+    const browser = await puppeteer.launch({ headless: false });
+    await processDocument(browser, filePath);
+    await browser.close();
     console.log('Finished processing file');
     console.log(`------------------------------------------`);
 });
