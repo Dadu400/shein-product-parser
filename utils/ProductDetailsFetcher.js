@@ -29,23 +29,27 @@ const getProductDetails = async (browser, link) => {
     page.on('response', async interceptedResponse => {
         if (interceptedResponse.url().includes('productInfo/attr/get')) {
             const jsonResponse = await interceptedResponse.json();
-            response = jsonResponse;
+            response = jsonResponse['info'];
+        }
+        if (interceptedResponse.url().includes('productInfo/realTimeData')) {
+            const jsonResponse = await interceptedResponse.json();
+            response = jsonResponse['data']['productInfo']['attrSizeList'];
         }
     });
 
     // Set Cookies and go to page
     await page.setCookie(...cookies);
-    await page.goto(link, { waitUntil: 'networkidle2' })
+    await page.goto(link, { waitUntil: 'networkidle2' });
     await page.close();
 
     // Parse data
     const productId = getProductIdFromLink(link);
-    return response['info']['sale_attr_list'][productId]['sku_list'].map(sku => {
-         return {
-            stock: sku['stock'],
-            size: sku['sku_sale_attr'][0]['attr_value_name']
-        }
-    });
+    return response['sale_attr_list'][productId]['sku_list'].map(sku => {
+        return {
+           stock: sku['stock'],
+           size: sku['sku_sale_attr'][0]['attr_value_name']
+       }
+   });
 };
 
 module.exports = getProductDetails;
