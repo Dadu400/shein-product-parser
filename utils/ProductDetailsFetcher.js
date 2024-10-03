@@ -45,6 +45,12 @@ const getProductDetails = async (browser, link) => {
     // Parse data
     const productId = getProductIdFromLink(link);
     return response['sale_attr_list'][productId]['sku_list'].map(sku => {
+        if (sku['sku_sale_attr'].length === 0) {
+            return {
+                stock: sku['stock'],
+                size: ''
+            }
+        }
         return {
            stock: sku['stock'],
            size: sku['sku_sale_attr'][0]['attr_value_name']
